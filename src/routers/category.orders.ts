@@ -30,4 +30,4 @@ ordersRouter.delete("/orders/:id", (req: Request, res: Response) => {
   return res.status(204).send();
 });
 
-export default ordersRouter;
+export { ordersRouter };

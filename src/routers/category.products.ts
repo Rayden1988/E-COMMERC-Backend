@@ -25,4 +25,4 @@ productsRouter.get("/products/:id", (req: Request, res: Response) => {
   });
 });
 
-export default productsRouter;
+export { productsRouter };
