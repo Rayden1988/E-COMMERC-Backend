@@ -1,28 +1,33 @@
-import { Router, type Request, type Response } from "express";
+import { Router } from "express";
+import { ProductController } from "../controllers/product.controllers.js";
+import {
+  createProductSchema,
+  productParamsSchema,
+  productQuerySchema,
+} from "../schemas/product.schema.js";
+import { validateData } from "../middlewares/validateData.js";
 
 const productsRouter = Router();
+const productController = new ProductController();
 
-productsRouter.get("/products", (req: Request, res: Response) => {
-  const { category } = req.query;
+productsRouter.get(
+  "/products",
+  validateData(productQuerySchema, "query"),
+  productController.findAll,
+);
 
-  return res.json({
-    message: "Listando produtos",
-    category,
-  });
-});
+productsRouter.post(
+  "/products",
+  validateData(createProductSchema, "body"),
+  productController.create,
+);
 
-productsRouter.get("/products/:id", (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+productsRouter.get("/products/:id", validateData(productParamsSchema, "params"), productController.findById);
 
-  if (Number.isNaN(id) || id < 0) {
-    return res.status(400).json({
-      error: "ID invalido",
-    });
-  }
-
-  return res.json({
-    message: `Produto encontrado com id ${id}`,
-  });
-});
+productsRouter.delete(
+  "/products/:id",
+  validateData(productParamsSchema, "params"),
+  productController.delete,
+);
 
 export { productsRouter };

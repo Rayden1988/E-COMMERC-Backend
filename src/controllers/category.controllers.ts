@@ -2,19 +2,27 @@ import { type Request, type Response } from "express";
 import {
   createCategorySchema,
   categoryParamsSchema,
+  categoryQueryPaginationSchema,
 } from "../schemas/category.schemas.js";
 
 export class CategoryController {
   findAll(req: Request, res: Response) {
+    const result = categoryQueryPaginationSchema.safeParse(req.query);
+
+    if (!result.success) {
+      return res.status(400).json({
+        error: result.error.flatten(),
+      });
+    }
+
     return res.json({
       message: "Listando categorias",
+      pagination: result.data,
     });
   }
 
   findById(req: Request, res: Response) {
     const result = categoryParamsSchema.safeParse(req.params);
-
-    console.log(result);
 
     if (!result.success) {
       return res.status(400).json({
@@ -37,37 +45,42 @@ export class CategoryController {
     }
 
     return res.status(201).json({
-      message: `Criar uma nova categoria com o nome ${result.data.description}`,
+      message: `Criar uma nova categoria com o nome ${result.data.name}`,
       category: result.data,
     });
   }
 
   update(req: Request, res: Response) {
-    // Aqui vai ter no banco de dados
-    const result = categoryParamsSchema.safeParse(req.params);
+    const paramsResult = categoryParamsSchema.safeParse(req.params);
+    const bodyResult = createCategorySchema.safeParse(req.body);
 
-    if (!result.success) {
-      return res.status(400).json({ error: result.error.flatten() });
-    }
-
-    const category = null;
-
-    if (!category) {
-      return res.status(404).json({
-        message: "Category not found",
+    if (!paramsResult.success) {
+      return res.status(400).json({
+        error: paramsResult.error.flatten(),
       });
     }
 
-    return res.status(201).json(category);
+    if (!bodyResult.success) {
+      return res.status(400).json({
+        error: bodyResult.error.flatten(),
+      });
+    }
+
+    return res.json({
+      message: `Categoria ${paramsResult.data.id} atualizada com sucesso`,
+      category: bodyResult.data,
+    });
   }
 
   delete(req: Request, res: Response) {
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res
-        .status(400)
-        .json({ error: result.error.flatten().fieldErrors });
+      return res.status(400).json({
+        error: result.error.flatten(),
+      });
     }
+
+    return res.status(204).send();
   }
 }

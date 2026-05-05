@@ -8,8 +8,21 @@ const createCategorySchema = z.object({
   description: z.string().optional(),
 });
 
+const categoryQueryPaginationSchema = z.object({
+  page: z.coerce.number().int().positive({
+    message: "page must be a positive number",
+  }),
+  size: z.coerce.number().int().positive({
+    message: "size must be a positive number",
+  }),
+});
+
 const categoryParamsSchema = z.object({
   id: z.string().uuid("invalid category ID format"),
 });
 
-export { createCategorySchema, categoryParamsSchema };
+export {
+  createCategorySchema,
+  categoryParamsSchema,
+  categoryQueryPaginationSchema,
+};
