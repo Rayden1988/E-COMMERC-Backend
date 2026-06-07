@@ -4,9 +4,13 @@ import {
   categoryParamsSchema,
   categoryQueryPaginationSchema,
 } from "../schemas/category.schemas.js";
+import { pool } from "../database/connection.js";
+import { CategoryPgRepository } from "../repository/pg/category.repository.js";
+
+const categoryRepository = new CategoryPgRepository(pool);
 
 export class CategoryController {
-  findAll(req: Request, res: Response) {
+  async findAll(req: Request, res: Response) {
     const result = categoryQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
@@ -21,7 +25,7 @@ export class CategoryController {
     });
   }
 
-  findById(req: Request, res: Response) {
+  async findById(req: Request, res: Response) {
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
@@ -35,7 +39,7 @@ export class CategoryController {
     });
   }
 
-  create(req: Request, res: Response) {
+  async create(req: Request, res: Response) {
     const result = createCategorySchema.safeParse(req.body);
 
     if (!result.success) {
@@ -44,13 +48,15 @@ export class CategoryController {
       });
     }
 
+    const category = await categoryRepository.createCategory(result.data.name);
+
     return res.status(201).json({
       message: `Criar uma nova categoria com o nome ${result.data.name}`,
-      category: result.data,
+      category,
     });
   }
 
-  update(req: Request, res: Response) {
+  async update(req: Request, res: Response) {
     const paramsResult = categoryParamsSchema.safeParse(req.params);
     const bodyResult = createCategorySchema.safeParse(req.body);
 
@@ -72,7 +78,7 @@ export class CategoryController {
     });
   }
 
-  delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response) {
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
