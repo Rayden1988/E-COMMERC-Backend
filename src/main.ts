@@ -7,6 +7,7 @@ import { categoryRoute } from "./routers/category.routes.js";
 const app = express();
 const port = 3001;
 
+// Habilita JSON e aplica middlewares/rotas
 app.use(express.json());
 app.use(logger);
 app.use(productsRouter);

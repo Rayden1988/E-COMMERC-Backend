@@ -1,31 +1,43 @@
 import { Router } from "express";
+import { pool } from "../database/connection.js";
 import { ProductController } from "../controllers/product.controllers.js";
 import {
   createProductSchema,
   productParamsSchema,
-  productQuerySchema,
+  productQueryPaginationSchema,
 } from "../schemas/product.schema.js";
 import { validateData } from "../middlewares/validateData.js";
+import { ProductPgRepository } from "../repository/pg/product.repository.js";
 
+// Rotas de produto
 const productsRouter = Router();
-const productController = new ProductController();
+const productRepository = new ProductPgRepository(pool);
+const productController = new ProductController(productRepository);
 
+// Lista produtos com validação de query
 productsRouter.get(
-  "/products",
-  validateData(productQuerySchema, "query"),
+  "/product",
+  validateData(productQueryPaginationSchema, "query"),
   productController.findAll,
 );
 
+// Cria um produto com validação de body
 productsRouter.post(
-  "/products",
+  "/product",
   validateData(createProductSchema, "body"),
   productController.create,
 );
 
-productsRouter.get("/products/:id", validateData(productParamsSchema, "params"), productController.findById);
+// Busca produto por id
+productsRouter.get(
+  "/product/:id",
+  validateData(productParamsSchema, "params"),
+  productController.findById,
+);
 
+// Remove produto por id
 productsRouter.delete(
-  "/products/:id",
+  "/product/:id",
   validateData(productParamsSchema, "params"),
   productController.delete,
 );

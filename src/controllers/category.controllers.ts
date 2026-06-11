@@ -9,8 +9,10 @@ import { CategoryPgRepository } from "../repository/pg/category.repository.js";
 
 const categoryRepository = new CategoryPgRepository(pool);
 
+// Controller responsável pelas rotas de categoria
 export class CategoryController {
   async findAll(req: Request, res: Response) {
+    // Valida os parâmetros de paginação
     const result = categoryQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
@@ -26,6 +28,7 @@ export class CategoryController {
   }
 
   async findById(req: Request, res: Response) {
+    // Valida o id recebido na rota
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
@@ -40,6 +43,7 @@ export class CategoryController {
   }
 
   async create(req: Request, res: Response) {
+    // Valida os dados enviados no body
     const result = createCategorySchema.safeParse(req.body);
 
     if (!result.success) {
@@ -48,6 +52,7 @@ export class CategoryController {
       });
     }
 
+    // Persiste a categoria no banco
     const category = await categoryRepository.createCategory(result.data.name);
 
     return res.status(201).json({
@@ -57,6 +62,7 @@ export class CategoryController {
   }
 
   async update(req: Request, res: Response) {
+    // Valida o id da rota e o body
     const paramsResult = categoryParamsSchema.safeParse(req.params);
     const bodyResult = createCategorySchema.safeParse(req.body);
 
@@ -79,6 +85,7 @@ export class CategoryController {
   }
 
   async delete(req: Request, res: Response) {
+    // Valida o id antes de excluir
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {

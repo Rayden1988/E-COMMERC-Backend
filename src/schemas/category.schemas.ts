@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// Schema para criar categoria
 const createCategorySchema = z.object({
   name: z
     .string()
@@ -8,6 +9,7 @@ const createCategorySchema = z.object({
   description: z.string().optional(),
 });
 
+// Schema para paginação da listagem de categorias
 const categoryQueryPaginationSchema = z.object({
   page: z.coerce.number().int().positive({
     message: "page must be a positive number",
@@ -17,6 +19,7 @@ const categoryQueryPaginationSchema = z.object({
   }),
 });
 
+// Schema para validar o id recebido na rota
 const categoryParamsSchema = z.object({
   id: z.string().uuid("invalid category ID format"),
 });
