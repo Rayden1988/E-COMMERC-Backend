@@ -1,7 +1,10 @@
-import type {
+import { Category } from "../entity/category.entity.js";
+import {
   CategoryCreateDTO,
   CategoryResponseDTO,
+  CategoryUpdateDTO,
 } from "../dto/category.dto.js";
+import { AppError } from "../errors/app-error.js";
 import type { CategoryRepository } from "../repository/interfaces/category.repository.js";
 
 export class CategoryService {
@@ -16,62 +19,55 @@ export class CategoryService {
   }): Promise<CategoryResponseDTO[]> {
     const categories = await this.repository.getAllCategories({ page, size });
 
-    return categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-    }));
+    return categories.map((category) => CategoryResponseDTO.create(category));
   }
 
   async getById(id: string): Promise<CategoryResponseDTO> {
     const category = await this.repository.getCategoryById(id);
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new AppError("Category not found", 404);
     }
 
-    return {
-      id: category.id,
-      name: category.name,
-    };
+    return CategoryResponseDTO.create(category);
   }
 
   async create(dto: CategoryCreateDTO): Promise<CategoryResponseDTO> {
-    const created = await this.repository.createCategory(dto.name);
+    const category = Category.create(dto.name);
+    const created = await this.repository.createCategory(category.name);
 
-    if (!created) {
-      throw new Error("Category not found");
-    }
-
-    return {
-      id: created.id,
-      name: created.name,
-    };
+    return CategoryResponseDTO.create(created);
   }
 
-  async update(dtoUpdate: {
-    id: string;
-    name: string;
-  }): Promise<CategoryResponseDTO> {
+  async update(
+    dto: CategoryUpdateDTO & { id: string },
+  ): Promise<CategoryResponseDTO> {
+    const category = await this.repository.getCategoryById(dto.id);
+
+    if (!category) {
+      throw new AppError("Category not found", 404);
+    }
+
+    const categoryToUpdate = Category.restore(category.id, category.name);
+    categoryToUpdate.rename(dto.name);
+
     const updated = await this.repository.updateCategory(
-      dtoUpdate.id,
-      dtoUpdate.name,
+      categoryToUpdate.id,
+      categoryToUpdate.name,
     );
 
     if (!updated) {
-      throw new Error("Category not found");
+      throw new AppError("Category not updated", 400);
     }
 
-    return {
-      id: updated.id,
-      name: updated.name,
-    };
+    return CategoryResponseDTO.create(updated);
   }
 
   async delete(id: string): Promise<void> {
     const category = await this.repository.getCategoryById(id);
 
     if (!category) {
-      throw new Error("Category not found");
+      throw new AppError("Category not found", 404);
     }
 
     await this.repository.deleteCategory(id);

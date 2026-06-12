@@ -1,5 +1,1 @@
-export {
-  createCategorySchema,
-  categoryParamsSchema,
-  categoryQueryPaginationSchema,
-} from "./category.schemas.js";
+export * from "./category.schemas.js";

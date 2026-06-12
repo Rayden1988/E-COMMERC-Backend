@@ -19,6 +19,37 @@ const createProductSchema = z.object({
   categoryId: z.string().uuid("invalid category ID format"),
 });
 
+const updateProductSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, { message: "name must be at least 3 characters" })
+      .optional(),
+    price: z
+      .coerce.number()
+      .positive({
+        message: "price must be a positive number",
+      })
+      .optional(),
+    stock: z
+      .coerce.number()
+      .min(0, {
+        message: "stock must be a non-negative number",
+      })
+      .optional(),
+    categoryId: z.string().uuid("invalid category ID format").optional(),
+  })
+  .refine(
+    (data) =>
+      data.name !== undefined ||
+      data.price !== undefined ||
+      data.stock !== undefined ||
+      data.categoryId !== undefined,
+    {
+      message: "at least one field must be informed",
+    },
+  );
+
 // Valida um filtro opcional por categoria
 const productQuerySchema = z.object({
   // categoria que vai filtrar os produtos
@@ -49,4 +80,5 @@ export {
   productParamsSchema,
   productQueryPaginationSchema,
   productQuerySchema,
+  updateProductSchema,
 };

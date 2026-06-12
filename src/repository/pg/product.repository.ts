@@ -1,5 +1,5 @@
-import { Product } from "../../entity/product.entity.js";
 import { Name } from "../../entity/name.valueObject.js";
+import { Product } from "../../entity/product.entity.js";
 import type { ProductRepository } from "../interfaces/product.repository.js";
 
 export class ProductPgRepository implements ProductRepository {
@@ -22,11 +22,11 @@ export class ProductPgRepository implements ProductRepository {
       Name.create(row.name),
       row.price,
       row.stock,
-      row.category_id
+      row.category_id,
     );
   }
 
-  async getAllCategories({
+  async getAllProducts({
     page,
     size,
   }: {
@@ -44,8 +44,8 @@ export class ProductPgRepository implements ProductRepository {
         Name.create(row.name),
         row.price,
         row.stock,
-        row.category_id
-      )
+        row.category_id,
+      ),
     );
   }
 
@@ -65,7 +65,7 @@ export class ProductPgRepository implements ProductRepository {
       Name.create(row.name),
       row.price,
       row.stock,
-      row.category_id
+      row.category_id,
     );
   }
 
@@ -91,13 +91,18 @@ export class ProductPgRepository implements ProductRepository {
       Name.create(row.name),
       row.price,
       row.stock,
-      row.category_id
+      row.category_id,
     );
   }
 
-  async deleteProduct(id: string): Promise<Product> {
+  async deleteProduct(id: string): Promise<Product | null> {
     const query = "DELETE FROM products WHERE id = $1 RETURNING *";
     const result = await this.db.query(query, [id]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
     const row = result.rows[0];
 
     return Product.restore(
@@ -105,7 +110,7 @@ export class ProductPgRepository implements ProductRepository {
       Name.create(row.name),
       row.price,
       row.stock,
-      row.category_id
+      row.category_id,
     );
   }
 }

@@ -4,14 +4,14 @@ import {
   categoryParamsSchema,
   categoryQueryPaginationSchema,
 } from "../schemas/category.schemas.js";
-import type { CategoryRepository } from "../repository/interfaces/category.repository.js";
-import { CategoryService } from "../services/category.services.js";
+import {
+  CategoryCreateDTO,
+  CategoryUpdateDTO,
+} from "../dto/category.dto.js";
+import type { CategoryService } from "../services/category.services.js";
 
 export class CategoryController {
-  constructor(
-    private repository: CategoryRepository,
-    private service: CategoryService,
-  ) {}
+  constructor(private service: CategoryService) {}
 
   async findAll(req: Request, res: Response) {
     const result = categoryQueryPaginationSchema.safeParse(req.query);
@@ -50,30 +50,25 @@ export class CategoryController {
       });
     }
 
-    const category = await this.service.create(result.data);
+    const category = await this.service.create(CategoryCreateDTO.create(result.data));
 
     return res.status(201).json(category);
   }
 
   async update(req: Request, res: Response) {
-    const paramsResult = categoryParamsSchema.safeParse(req.params);
-    const bodyResult = createCategorySchema.safeParse(req.body);
-
-    if (!paramsResult.success) {
-      return res.status(400).json({
-        error: paramsResult.error.flatten(),
-      });
+    const result = categoryParamsSchema.safeParse(req.params);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.flatten() });
     }
 
-    if (!bodyResult.success) {
-      return res.status(400).json({
-        error: bodyResult.error.flatten(),
-      });
+    const resultBody = createCategorySchema.safeParse(req.body);
+    if (!resultBody.success) {
+      return res.status(400).json({ error: resultBody.error.flatten() });
     }
 
     const dtoUpdate = {
-      id: paramsResult.data.id as string,
-      name: bodyResult.data.name as string,
+      id: result.data.id,
+      name: CategoryUpdateDTO.create(resultBody.data).name,
     };
 
     const categoryUpdated = await this.service.update(dtoUpdate);
