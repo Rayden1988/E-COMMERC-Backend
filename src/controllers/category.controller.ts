@@ -4,15 +4,16 @@ import {
   categoryParamsSchema,
   categoryQueryPaginationSchema,
 } from "../schemas/category.schemas.js";
-import { pool } from "../database/connection.js";
-import { CategoryPgRepository } from "../repository/pg/category.repository.js";
+import type { CategoryRepository } from "../repository/interfaces/category.repository.js";
+import { CategoryService } from "../services/category.services.js";
 
-const categoryRepository = new CategoryPgRepository(pool);
-
-// Controller responsável pelas rotas de categoria
 export class CategoryController {
+  constructor(
+    private repository: CategoryRepository,
+    private service: CategoryService,
+  ) {}
+
   async findAll(req: Request, res: Response) {
-    // Valida os parâmetros de paginação
     const result = categoryQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
@@ -21,14 +22,12 @@ export class CategoryController {
       });
     }
 
-    return res.json({
-      message: "Listando categorias",
-      pagination: result.data,
-    });
+    const categories = await this.service.getAll(result.data);
+
+    return res.json(categories);
   }
 
   async findById(req: Request, res: Response) {
-    // Valida o id recebido na rota
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
@@ -37,13 +36,12 @@ export class CategoryController {
       });
     }
 
-    return res.json({
-      message: `retornar a categoria com id ${result.data.id}`,
-    });
+    const category = await this.service.getById(result.data.id);
+
+    return res.json(category);
   }
 
   async create(req: Request, res: Response) {
-    // Valida os dados enviados no body
     const result = createCategorySchema.safeParse(req.body);
 
     if (!result.success) {
@@ -52,17 +50,12 @@ export class CategoryController {
       });
     }
 
-    // Persiste a categoria no banco
-    const category = await categoryRepository.createCategory(result.data.name);
+    const category = await this.service.create(result.data);
 
-    return res.status(201).json({
-      message: `Criar uma nova categoria com o nome ${result.data.name}`,
-      category,
-    });
+    return res.status(201).json(category);
   }
 
   async update(req: Request, res: Response) {
-    // Valida o id da rota e o body
     const paramsResult = categoryParamsSchema.safeParse(req.params);
     const bodyResult = createCategorySchema.safeParse(req.body);
 
@@ -78,14 +71,17 @@ export class CategoryController {
       });
     }
 
-    return res.json({
-      message: `Categoria ${paramsResult.data.id} atualizada com sucesso`,
-      category: bodyResult.data,
-    });
+    const dtoUpdate = {
+      id: paramsResult.data.id as string,
+      name: bodyResult.data.name as string,
+    };
+
+    const categoryUpdated = await this.service.update(dtoUpdate);
+
+    return res.status(201).json(categoryUpdated);
   }
 
   async delete(req: Request, res: Response) {
-    // Valida o id antes de excluir
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
@@ -93,6 +89,8 @@ export class CategoryController {
         error: result.error.flatten(),
       });
     }
+
+    await this.service.delete(result.data.id);
 
     return res.status(204).send();
   }

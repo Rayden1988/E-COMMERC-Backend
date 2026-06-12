@@ -6,7 +6,7 @@ const createCategorySchema = z.object({
     .string()
     .min(3, { message: "name must be at least 3 characters " })
     .max(100, { message: "name must be less than 100 characters" }),
-  description: z.string().optional(),
+  //description: z.string().optional(),
 });
 
 // Schema para paginação da listagem de categorias

@@ -8,6 +8,7 @@ export class CategoryPgRepository implements CategoryRepository {
   constructor(private db: any) {
     this.db = db;
   }
+  findByName: any;
 
   async createCategory(name: string): Promise<Category> {
     const insertQuery =

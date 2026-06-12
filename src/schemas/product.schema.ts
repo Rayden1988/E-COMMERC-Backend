@@ -1,36 +1,46 @@
 import { z } from "zod";
 
-// Schema para criar produto
+// Valida os dados para criar um produto
 const createProductSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "name must be at least 3 characters" }),
+  // nome do produto
+  name: z.string().min(3, { message: "name must be at least 3 characters" }),
+
+  // preço do produto, converte para número se vier como string
   price: z.coerce.number().positive({
     message: "price must be a positive number",
   }),
+
+  // quantidade em estoque, não pode ser negativa
   stock: z.coerce.number().min(0, {
     message: "stock must be a non-negative number",
   }),
+
+  // id da categoria vinculada ao produto
   categoryId: z.string().uuid("invalid category ID format"),
 });
 
-// Schema para filtrar produtos por categoria
+// Valida um filtro opcional por categoria
 const productQuerySchema = z.object({
-  category: z.string().uuid("invalid category ID format").optional(),
+  // categoria que vai filtrar os produtos
+  categoryId: z.string().uuid("invalid category ID format").optional(),
 });
 
-// Schema para paginação da listagem de produtos
+// Valida a paginação da listagem
 const productQueryPaginationSchema = z.object({
+  // página atual
   page: z.coerce.number().int().min(0, {
     message: "page must be a non-negative number",
   }),
+
+  // quantidade de itens por página
   size: z.coerce.number().int().positive({
     message: "size must be a positive number",
   }),
 });
 
-// Schema para validar o id do produto na rota
+// Valida o id que vem na rota do produto
 const productParamsSchema = z.object({
+  // id do produto
   id: z.string().uuid("invalid product ID format"),
 });
 

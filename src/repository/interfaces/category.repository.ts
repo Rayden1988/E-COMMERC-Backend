@@ -1,4 +1,5 @@
 export interface Category {
+  rename(name: any): unknown;
   id: string;
   name: string;
 }
