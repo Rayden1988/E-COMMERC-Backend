@@ -6,7 +6,9 @@
     "dev": "tsx watch src/main.ts",
     "schema": "tsx database/schema.ts",
     "build": "tsc",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "type-check": "tsc --noEmit"
   },
   "type": "module",
   "keywords": [],
@@ -21,7 +23,9 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
