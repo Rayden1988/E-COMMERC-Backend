@@ -1,4 +1,5 @@
 import { Category } from "../../entity/category.entity.js";
+import { AppError } from "../../errors/app-error.js";
 import type { CategoryRepository } from "../interfaces/category.repository.js";
 
 // ImplementaÃ§Ã£o PostgreSQL do repositÃ³rio de categorias
@@ -17,10 +18,7 @@ export class CategoryPgRepository implements CategoryRepository {
       return Category.restore(row.id, row.name);
     }
 
-    const selectQuery = "SELECT * FROM categories WHERE name = $1";
-    const selectResult = await this.db.query(selectQuery, [name]);
-    const row = selectResult.rows[0];
-    return Category.restore(row.id, row.name);
+    throw new AppError("Category name already exists", 409);
   }
 
   async getAllCategories({

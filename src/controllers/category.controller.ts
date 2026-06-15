@@ -8,6 +8,7 @@ import {
   CategoryCreateDTO,
   CategoryUpdateDTO,
 } from "../dto/category.dto.js";
+import { AppError } from "../errors/app-error.js";
 import type { CategoryService } from "../services/category.services.js";
 
 export class CategoryController {
@@ -17,9 +18,7 @@ export class CategoryController {
     const result = categoryQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const categories = await this.service.getAll(result.data);
@@ -31,9 +30,7 @@ export class CategoryController {
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const category = await this.service.getById(result.data.id);
@@ -45,9 +42,7 @@ export class CategoryController {
     const result = createCategorySchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const category = await this.service.create(CategoryCreateDTO.create(result.data));
@@ -58,12 +53,12 @@ export class CategoryController {
   async update(req: Request, res: Response) {
     const result = categoryParamsSchema.safeParse(req.params);
     if (!result.success) {
-      return res.status(400).json({ error: result.error.flatten() });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const resultBody = createCategorySchema.safeParse(req.body);
     if (!resultBody.success) {
-      return res.status(400).json({ error: resultBody.error.flatten() });
+      throw new AppError("Invalid Params", 400, resultBody.error.flatten());
     }
 
     const dtoUpdate = {
@@ -80,9 +75,7 @@ export class CategoryController {
     const result = categoryParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     await this.service.delete(result.data.id);

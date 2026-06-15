@@ -4,6 +4,7 @@ import {
   refreshSchema,
   registerSchema,
 } from "../schemas/auth.schema.js";
+import { AppError } from "../errors/app-error.js";
 import type { AuthService } from "../services/auth.service.js";
 
 export class AuthController {
@@ -12,7 +13,7 @@ export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
     const result = registerSchema.safeParse(req.body);
     if (!result.success) {
-      return res.status(400).json({ error: result.error.flatten() });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const user = await this.service.register(result.data);
@@ -22,7 +23,7 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
     const result = loginSchema.safeParse(req.body);
     if (!result.success) {
-      return res.status(400).json({ error: result.error.flatten() });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const tokens = await this.service.login(result.data);
@@ -32,7 +33,7 @@ export class AuthController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     const result = refreshSchema.safeParse(req.body);
     if (!result.success) {
-      return res.status(400).json({ error: result.error.flatten() });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const tokens = await this.service.refresh(result.data.refreshToken);

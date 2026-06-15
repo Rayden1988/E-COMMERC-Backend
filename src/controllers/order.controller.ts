@@ -5,6 +5,7 @@ import {
   orderQueryPaginationSchema,
   updateOrderSchema,
 } from "../schemas/order.schema.js";
+import { AppError } from "../errors/app-error.js";
 import type { OrderService } from "../services/order.service.js";
 
 export class OrderController {
@@ -14,9 +15,7 @@ export class OrderController {
     const result = createOrderSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const order = await this.service.create(result.data);
@@ -28,9 +27,7 @@ export class OrderController {
     const result = orderQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const orders = await this.service.getAll(result.data);
@@ -42,9 +39,7 @@ export class OrderController {
     const result = orderParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const order = await this.service.getById(result.data.id);
@@ -56,17 +51,13 @@ export class OrderController {
     const paramsResult = orderParamsSchema.safeParse(req.params);
 
     if (!paramsResult.success) {
-      return res.status(400).json({
-        error: paramsResult.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, paramsResult.error.flatten());
     }
 
     const bodyResult = updateOrderSchema.safeParse(req.body);
 
     if (!bodyResult.success) {
-      return res.status(400).json({
-        error: bodyResult.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, bodyResult.error.flatten());
     }
 
     const order = await this.service.update(paramsResult.data.id, bodyResult.data);
@@ -78,9 +69,7 @@ export class OrderController {
     const result = orderParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     await this.service.delete(result.data.id);

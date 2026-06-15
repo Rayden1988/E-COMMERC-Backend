@@ -9,6 +9,7 @@ import {
   CreateProductDto,
   UpdateProductDto,
 } from "../dto/product.dto.js";
+import { AppError } from "../errors/app-error.js";
 import type { ProductService } from "../services/product.services.js";
 
 export class ProductController {
@@ -18,9 +19,7 @@ export class ProductController {
     const result = productQueryPaginationSchema.safeParse(req.query);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const products = await this.service.getAll(result.data);
@@ -32,9 +31,7 @@ export class ProductController {
     const result = productParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const product = await this.service.getById(result.data.id);
@@ -46,9 +43,7 @@ export class ProductController {
     const result = createProductSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const product = await this.service.create(CreateProductDto.create(result.data));
@@ -60,17 +55,13 @@ export class ProductController {
     const result = productParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     const resultBody = updateProductSchema.safeParse(req.body);
 
     if (!resultBody.success) {
-      return res.status(400).json({
-        error: resultBody.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, resultBody.error.flatten());
     }
 
     const dtoUpdate = {
@@ -87,9 +78,7 @@ export class ProductController {
     const result = productParamsSchema.safeParse(req.params);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: result.error.flatten(),
-      });
+      throw new AppError("Invalid Params", 400, result.error.flatten());
     }
 
     await this.service.delete(result.data.id);

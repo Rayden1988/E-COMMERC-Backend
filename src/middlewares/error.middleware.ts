@@ -11,37 +11,113 @@ export function errorMiddleware(
 
   const pgError = err as Error & { code?: string };
 
-  const knownErrors: Record<string, number> = {
-    "Email already in use": 409,
-    "Invalid credentials": 401,
-    "Refresh token not found": 401,
-    "Refresh token expired": 401,
-    "Product not found": 404,
-    "Category not found": 404,
-    "Client not found": 404,
-    "Address not found": 404,
-    "Order not found": 404,
-    "Insufficient product stock": 400,
-    "Product not updated": 400,
-    "Category not updated": 400,
-    "Order not updated": 400,
-    "At least one order item is required": 400,
+  const knownErrors: Record<string, { statusCode: number; message: string }> = {
+    // Produto não encontrado
+    "Product not found": {
+      statusCode: 404,
+      message: "There is not product with this id",
+    },
+    // Categoria não encontrada
+    "Category not found": {
+      statusCode: 404,
+      message: "There is not category with this id",
+    },
+    // Produto não atualizado
+    "Product not updated": {
+      statusCode: 400,
+      message: "It was not possible to update this product",
+    },
+    // Categoria não atualizada
+    "Category not updated": {
+      statusCode: 400,
+      message: "It was not possible to update this category",
+    },
+    // Nome de categoria já existe
+    "Category name already exists": {
+      statusCode: 409,
+      message: "Category must be unique",
+    },
+    // Parâmetros inválidos
+    "Invalid Params": {
+      statusCode: 400,
+      message: "You must send correct params",
+    },
+    // E-mail já cadastrado
+    "Email already in use": {
+      statusCode: 409,
+      message: "Email already in use",
+    },
+    // Credenciais inválidas
+    "Invalid credentials": {
+      statusCode: 401,
+      message: "Invalid credentials",
+    },
+    // Refresh token não encontrado
+    "Refresh token not found": {
+      statusCode: 401,
+      message: "Refresh token not found",
+    },
+    // Refresh token expirado
+    "Refresh token expired": {
+      statusCode: 401,
+      message: "Refresh token expired",
+    },
+    // Cliente não encontrado
+    "Client not found": {
+      statusCode: 404,
+      message: "There is not client with this id",
+    },
+    // Endereço não encontrado
+    "Address not found": {
+      statusCode: 404,
+      message: "There is not address with this id",
+    },
+    // Pedido não encontrado
+    "Order not found": {
+      statusCode: 404,
+      message: "There is not order with this id",
+    },
+    // Pedido não atualizado
+    "Order not updated": {
+      statusCode: 400,
+      message: "It was not possible to update this order",
+    },
+    // Estoque insuficiente
+    "Insufficient product stock": {
+      statusCode: 422,
+      message: "Insufficient stock",
+    },
+    // Pedido sem itens
+    "At least one order item is required": {
+      statusCode: 400,
+      message: "At least one order item is required",
+    },
   };
 
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({ error: err.message });
+    return res.status(err.statusCode).json({
+      error: err.message,
+      ...(err.details !== undefined ? { details: err.details } : {}),
+    });
   }
 
   if (pgError.code === "23505") {
-    return res.status(409).json({ error: "Email already in use" });
+    return res.status(409).json({ error: "Category name already exists" });
   }
 
   if (pgError.code === "23503") {
     return res.status(404).json({ error: "Referenced record not found" });
   }
 
-  const status = knownErrors[err.message] ?? 500;
-  const message = status === 500 ? "Internal server error" : err.message;
+  const knownError = knownErrors[err.message];
 
-  return res.status(status).json({ error: message });
+  if (knownError) {
+    return res.status(knownError.statusCode).json({
+      error: knownError.message,
+    });
+  }
+
+  return res.status(500).json({
+    error: "Internal server error",
+  });
 }
