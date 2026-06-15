@@ -1,3 +1,4 @@
+// Implementacao PostgreSQL do repositorio de produtos.
 import { Name } from "../../entity/name.valueObject.js";
 import { Product } from "../../entity/product.entity.js";
 import type { ProductRepository } from "../interfaces/product.repository.js";

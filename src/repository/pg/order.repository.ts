@@ -1,3 +1,4 @@
+// Implementacao PostgreSQL do repositorio de pedidos.
 import type {
   CreateOrderInput,
   OrderRecord,
@@ -7,7 +8,9 @@ import type {
 export class OrderPgRepository implements OrderRepository {
   constructor(private db: any) {}
 
+  // Converte a linha do pedido em objeto com os itens carregados
   private async mapOrderRow(client: any, orderRow: any): Promise<OrderRecord> {
+    // Busca os itens ligados ao pedido
     const itemsResult = await client.query(
       `
       SELECT
@@ -36,12 +39,15 @@ export class OrderPgRepository implements OrderRepository {
     };
   }
 
+  // Cria um pedido, valida estoque e grava os itens
   async createOrder(input: CreateOrderInput): Promise<OrderRecord> {
     const client = await this.db.connect();
 
     try {
+      // Começa a transação para garantir consistência
       await client.query("BEGIN");
 
+      // Confere se o cliente existe
       const clientResult = await client.query(
         `SELECT id FROM clients WHERE id = $1`,
         [input.clientId],
@@ -51,6 +57,7 @@ export class OrderPgRepository implements OrderRepository {
         throw new Error("Client not found");
       }
 
+      // Confere se o endereço existe
       const addressResult = await client.query(
         `SELECT id FROM addresses WHERE id = $1`,
         [input.addressId],
@@ -68,6 +75,7 @@ export class OrderPgRepository implements OrderRepository {
       }> = [];
 
       for (const item of input.items) {
+        // Bloqueia o produto para evitar corrida de estoque
         const productResult = await client.query(
           `SELECT id, price, stock FROM products WHERE id = $1 FOR UPDATE`,
           [item.productId],
@@ -77,6 +85,7 @@ export class OrderPgRepository implements OrderRepository {
           throw new Error("Product not found");
         }
 
+        // Calcula subtotal e checa estoque
         const product = productResult.rows[0];
         const unitPrice = Number(product.price);
         const currentStock = Number(product.stock);
@@ -90,6 +99,7 @@ export class OrderPgRepository implements OrderRepository {
           [item.quantity, item.productId],
         );
 
+        // Acumula o total do pedido
         total += unitPrice * item.quantity;
         normalizedItems.push({
           productId: item.productId,
@@ -99,6 +109,7 @@ export class OrderPgRepository implements OrderRepository {
       }
 
       const status = input.status ?? "pending";
+      // Insere o pedido principal
       const orderResult = await client.query(
         `
         INSERT INTO orders (client_id, address_id, status, total)
@@ -110,6 +121,7 @@ export class OrderPgRepository implements OrderRepository {
 
       const orderRow = orderResult.rows[0];
 
+      // Insere os itens do pedido
       for (const item of normalizedItems) {
         await client.query(
           `
@@ -122,15 +134,19 @@ export class OrderPgRepository implements OrderRepository {
 
       await client.query("COMMIT");
 
+      // Retorna o pedido com os itens carregados
       return this.mapOrderRow(client, orderRow);
     } catch (error) {
+      // Em caso de erro, desfaz tudo
       await client.query("ROLLBACK");
       throw error;
     } finally {
+      // Libera a conexão
       client.release();
     }
   }
 
+  // Lista pedidos com paginação
   async getAllOrders({
     page,
     size,
@@ -138,6 +154,7 @@ export class OrderPgRepository implements OrderRepository {
     page: number;
     size: number;
   }): Promise<OrderRecord[]> {
+    // Busca pedidos com paginação
     const offset = page * size;
     const result = await this.db.query(
       `
@@ -151,6 +168,7 @@ export class OrderPgRepository implements OrderRepository {
 
     const orders: OrderRecord[] = [];
     for (const row of result.rows) {
+      // Carrega os itens de cada pedido
       const itemsResult = await this.db.query(
         `
         SELECT
@@ -182,7 +200,9 @@ export class OrderPgRepository implements OrderRepository {
     return orders;
   }
 
+  // Busca um pedido pelo id
   async getOrderById(id: string): Promise<OrderRecord | null> {
+    // Busca o pedido principal
     const result = await this.db.query(
       `
       SELECT id, client_id, address_id, status, total, created_at
@@ -194,13 +214,16 @@ export class OrderPgRepository implements OrderRepository {
 
     if (result.rows.length === 0) return null;
 
+    // Monta o pedido completo com os itens
     return this.mapOrderRow(this.db, result.rows[0]);
   }
 
+  // Atualiza somente o status do pedido
   async updateOrderStatus(
     id: string,
     status: string,
   ): Promise<OrderRecord | null> {
+    // Atualiza apenas o status do pedido
     const result = await this.db.query(
       `
       UPDATE orders
@@ -213,15 +236,19 @@ export class OrderPgRepository implements OrderRepository {
 
     if (result.rows.length === 0) return null;
 
+    // Retorna o pedido atualizado
     return this.getOrderById(id);
   }
 
+  // Remove o pedido e devolve o estoque dos produtos
   async deleteOrder(id: string): Promise<boolean> {
     const client = await this.db.connect();
 
     try {
+      // Começa a transação para reverter o estoque se algo falhar
       await client.query("BEGIN");
 
+      // Garante que o pedido existe antes de apagar
       const orderResult = await client.query(
         `
         SELECT id, status
@@ -237,6 +264,7 @@ export class OrderPgRepository implements OrderRepository {
         return false;
       }
 
+      // Busca os itens do pedido para devolver o estoque
       const itemsResult = await client.query(
         `
         SELECT product_id AS "productId", quantity
@@ -247,6 +275,7 @@ export class OrderPgRepository implements OrderRepository {
       );
 
       for (const item of itemsResult.rows) {
+        // Devolve a quantidade ao estoque dos produtos
         await client.query(
           `
           UPDATE products
@@ -261,11 +290,14 @@ export class OrderPgRepository implements OrderRepository {
       await client.query(`DELETE FROM orders WHERE id = $1`, [id]);
 
       await client.query("COMMIT");
+      // Confirma a exclusão
       return true;
     } catch (error) {
+      // Em caso de erro, desfaz a operação
       await client.query("ROLLBACK");
       throw error;
     } finally {
+      // Libera a conexão
       client.release();
     }
   }

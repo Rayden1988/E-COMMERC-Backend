@@ -1,3 +1,4 @@
+// Rotas de categoria com protecao de admin.
 import { Router } from "express";
 import { CategoryController } from "../controllers/category.controller.js";
 import { pool } from "../database/connection.js";

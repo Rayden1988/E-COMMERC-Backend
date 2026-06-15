@@ -1,3 +1,4 @@
+// Value object para garantir o padrao do nome.
 export class Name {
   constructor(public readonly value: string) {
     if (value.trim().length < 3) {

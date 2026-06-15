@@ -1,10 +1,10 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
 
-// Carrega as variáveis do arquivo .env
+// Carrega as variaveis do ambiente antes de abrir conexao.
 dotenv.config();
 
-// Cria o pool de conexões com o PostgreSQL
+// Pool compartilhado para as consultas no PostgreSQL.
 export const pool = new Pool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
@@ -13,12 +13,12 @@ export const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-// Confirma quando a conexão com o banco é aberta
+// Loga quando o banco aceita a conexao.
 pool.on("connect", () => {
   console.log("Conectado ao PostgreSQL");
 });
 
-// Mostra erro de conexão com o banco
+// Loga falhas de conexao com o banco.
 pool.on("error", (err) => {
-  console.error("Erro na conexão:", err.message);
+  console.error("Erro na conexao:", err.message);
 });

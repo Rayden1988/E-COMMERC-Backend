@@ -1,3 +1,4 @@
+// Controller das rotas de autenticacao.
 import type { Request, Response, NextFunction } from "express";
 import {
   loginSchema,

@@ -1,3 +1,4 @@
+// Rotas de pedido protegidas por autenticao.
 import { Router } from "express";
 import { pool } from "../database/connection.js";
 import { authMiddleware } from "../middlewares/authenticated.middleware.js";

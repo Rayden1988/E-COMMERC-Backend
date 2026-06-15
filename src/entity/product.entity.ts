@@ -1,3 +1,4 @@
+// Entidade de produto com validacoes de dominio.
 import { Name } from "./name.valueObject.js";
 
 export class Product {

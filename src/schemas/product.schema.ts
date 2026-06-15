@@ -1,3 +1,4 @@
+// Schemas Zod para produtos.
 import { z } from "zod";
 
 // Valida os dados para criar um produto

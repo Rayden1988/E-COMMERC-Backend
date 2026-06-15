@@ -3,7 +3,7 @@ import { type ZodTypeAny } from "zod";
 
 type ValidationSource = "body" | "params" | "query";
 
-// Valida body, params ou query usando um schema do Zod
+// Valida body, params ou query usando um schema do Zod.
 function validateData(schema: ZodTypeAny, source: ValidationSource): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req[source]);

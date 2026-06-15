@@ -1,3 +1,4 @@
+// Versao alternativa do logger de requisicoes.
 import type { Request, Response, NextFunction } from "express";
 
 export function loggerMiddleware(

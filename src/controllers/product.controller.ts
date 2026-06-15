@@ -1,3 +1,4 @@
+// Controller das rotas de produto.
 import { type Request, type Response } from "express";
 import {
   createProductSchema,

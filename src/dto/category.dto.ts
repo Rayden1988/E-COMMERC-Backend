@@ -1,3 +1,4 @@
+// DTOs de categoria usados entre controller e service.
 import type { Category } from "../entity/category.entity.js";
 
 export class CategoryCreateDTO {

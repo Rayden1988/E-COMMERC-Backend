@@ -1,3 +1,4 @@
+// Contrato do repositorio de usuarios.
 import type { User } from "../../entity/user.entity.js";
 
 export interface RefreshTokenRecord {
@@ -12,7 +13,7 @@ export interface UserRepository {
   create(user: User): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
-  saveRefreshToken(userId: string, token: string): Promise<void>;
+  saveRefreshToken(userId: string, token: string, expiresAt: Date): Promise<void>;
   findRefreshToken(token: string): Promise<RefreshTokenRecord | null>;
   deleteRefreshToken(token: string): Promise<void>;
 }

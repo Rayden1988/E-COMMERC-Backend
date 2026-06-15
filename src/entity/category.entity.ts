@@ -1,3 +1,4 @@
+// Entidade de categoria com regras basicas de nome.
 export class Category {
   constructor(
     public id: string,

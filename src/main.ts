@@ -6,10 +6,11 @@ import { authRouter } from "./routers/auth.router.js";
 import { orderRouter } from "./routers/orders.router.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
+// Ponto de entrada principal da aplicacao.
 const app = express();
 const port = 3001;
 
-// Habilita JSON e aplica middlewares/rotas
+// Habilita JSON e aplica os middlewares e rotas principais.
 app.use(express.json());
 app.use(loggerMiddleware);
 app.use("/auth", authRouter);

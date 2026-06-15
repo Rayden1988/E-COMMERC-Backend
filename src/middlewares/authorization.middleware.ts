@@ -1,5 +1,6 @@
 import { type NextFunction, type Request, type Response } from "express";
 
+// Middleware para liberar rotas apenas para certos papeis.
 type AuthedRequest = Request & {
   user?: {
     role?: string;

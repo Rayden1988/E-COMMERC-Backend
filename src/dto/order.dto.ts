@@ -1,3 +1,4 @@
+// DTOs de pedido usados na API.
 export interface CreateOrderItemDto {
   productId: string;
   quantity: number;

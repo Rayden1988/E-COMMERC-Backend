@@ -9,6 +9,7 @@ import { orderRouter } from "../routers/orders.router.js";
 import { loggerMiddleware } from "../middlewares/logger.middleware.js";
 import { errorMiddleware } from "../middlewares/error.middleware.js";
 
+// Variante de bootstrap usada para subir a API com dotenv carregado cedo.
 const app = express();
 const port = 3001;
 

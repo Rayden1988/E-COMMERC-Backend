@@ -1,3 +1,4 @@
+// Contrato do repositorio de pedidos.
 export interface CreateOrderItemInput {
   productId: string;
   quantity: number;

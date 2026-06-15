@@ -1,3 +1,4 @@
+// Contrato do repositorio de produtos.
 import type { Product as ProductEntity } from "../../entity/product.entity.js";
 
 export interface ProductRepository {

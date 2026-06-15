@@ -1,3 +1,4 @@
+// Schemas Zod para categorias.
 import { z } from "zod";
 
 // Schema para criar categoria

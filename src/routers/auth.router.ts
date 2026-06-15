@@ -1,3 +1,4 @@
+// Rotas publicas de autenticacao.
 import { Router } from "express";
 import { pool } from "../database/connection.js";
 import { AuthController } from "../controllers/auth.controller.js";

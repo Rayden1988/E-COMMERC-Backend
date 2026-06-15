@@ -37,17 +37,26 @@ export class AuthService {
 
     const accessToken = this.generateAccessToken({
       id: user.id,
+      name: user.name,
       email: user.email,
       role: user.role,
     });
 
     const refreshToken = this.generateRefreshToken({
       id: user.id,
+      name: user.name,
       email: user.email,
       role: user.role,
+      
     });
 
-    await this.userRepository.saveRefreshToken(user.id, refreshToken);
+    const refreshTokenExpiresAt = this.getRefreshTokenExpiration();
+
+    await this.userRepository.saveRefreshToken(
+      user.id,
+      refreshToken,
+      refreshTokenExpiresAt,
+    );
 
     return { accessToken, refreshToken };
   }
@@ -85,6 +94,7 @@ export class AuthService {
       id: payload.id,
       email: payload.email,
       role: payload.role,
+      name: ""
     });
 
     return { accessToken };

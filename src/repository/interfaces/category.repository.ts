@@ -1,3 +1,4 @@
+// Contrato do repositorio de categorias.
 import type { Category as CategoryEntity } from "../../entity/category.entity.js";
 
 export interface CategoryRepository {

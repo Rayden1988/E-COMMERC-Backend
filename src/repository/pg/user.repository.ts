@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+// Implementacao PostgreSQL do repositorio de usuarios.
 import { User } from "../../entity/user.entity.js";
 import type {
   RefreshTokenRecord,
@@ -51,10 +51,11 @@ export class UserPgRepository implements UserRepository {
     return User.restore(row.id, row.name, row.email, row.password, row.role);
   }
 
-  async saveRefreshToken(userId: string, token: string): Promise<void> {
-    const decoded = jwt.decode(token) as { exp?: number } | null;
-    const expiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : new Date();
-
+  async saveRefreshToken(
+    userId: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
     await this.db.query(
       `
       INSERT INTO refresh_tokens (user_id, token, expires_at)

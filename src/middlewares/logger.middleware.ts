@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
+// Middleware simples para medir tempo de resposta.
 export function loggerMiddleware(
   req: Request,
   res: Response,

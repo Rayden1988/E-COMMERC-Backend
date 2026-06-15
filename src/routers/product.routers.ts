@@ -1,3 +1,4 @@
+// Rotas de produto com protecao de admin.
 import { Router } from "express";
 
 import { pool } from "../database/connection.js";

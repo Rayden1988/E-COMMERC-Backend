@@ -1,3 +1,4 @@
+// Entidade de usuario usada na autenticacao.
 import { randomUUID } from "node:crypto";
 
 export class User {

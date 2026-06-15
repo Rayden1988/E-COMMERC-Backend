@@ -1,3 +1,4 @@
+// Controller das rotas de categoria.
 import { type Request, type Response } from "express";
 import {
   createCategorySchema,

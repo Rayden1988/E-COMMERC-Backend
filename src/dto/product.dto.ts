@@ -1,3 +1,4 @@
+// DTOs de produto usados entre controller, service e resposta.
 import type { Name } from "../entity/name.valueObject.js";
 import type { Product } from "../entity/product.entity.js";
 
